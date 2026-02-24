@@ -1,4 +1,4 @@
-# Quadrant Todo - 四象限待办事项管理
+# Focudrant - 四象限聚焦式任务管理
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-18.2-blue?logo=react" alt="React">
@@ -9,7 +9,8 @@
 </p>
 
 <p align="center">
-  基于艾森豪威尔矩阵（四象限法则）的可视化任务管理应用，帮助您高效管理时间与任务优先级。
+  基于艾森豪威尔矩阵（四象限法则）的可视化任务管理应用，聚焦重点、高效执行。<br/>
+  <strong>Focus</strong> + <strong>Quadrant</strong> = <strong>Focudrant</strong>
 </p>
 
 <p align="center">
@@ -220,5 +221,5 @@ src/
 ---
 
 <p align="center">
-  Made with ❤️ for better time management
+  <strong>Focudrant</strong> - Made with ❤️ for better focus & productivity
 </p>
