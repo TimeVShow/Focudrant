@@ -107,6 +107,12 @@ const translations: Record<Locale, Record<string, string>> = {
     // 祝贺
     'congrats': '任务完成！继续加油！',
 
+    // 任务数量限制
+    'limit.title': '事件数量已达上限',
+    'limit.add': '事件数量过多，请先删除部分吧',
+    'limit.import': '导入后将超过100个事件，请先删除部分后重试',
+    'limit.restore': '事件数量已达上限，无法恢复',
+
     // 引导
     'guide.welcome': '欢迎使用四象限待办',
     'guide.s1.title': '菜单功能',
@@ -212,6 +218,12 @@ const translations: Record<Locale, Record<string, string>> = {
 
     'loading': 'Loading...',
     'congrats': 'Task completed! Keep going!',
+
+    // Task limit
+    'limit.title': 'Task limit reached',
+    'limit.add': 'Too many tasks. Please delete some first.',
+    'limit.import': 'Import would exceed 100 tasks. Please delete some first.',
+    'limit.restore': 'Task limit reached. Cannot restore.',
 
     'guide.welcome': 'Welcome to Quadrant Todo',
     'guide.s1.title': 'Menu Features',

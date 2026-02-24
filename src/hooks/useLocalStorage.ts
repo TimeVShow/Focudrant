@@ -4,6 +4,7 @@ import { Task, CompletedTask } from '../types';
 const STORAGE_KEY = 'quadrant-tasks';
 const COMPLETED_STORAGE_KEY = 'quadrant-completed-tasks';
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+export const MAX_TASKS = 100;
 
 export function useLocalStorage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -62,15 +63,20 @@ export function useLocalStorage() {
     }
   }, [completedTasks, isLoaded]);
 
-  const addTask = useCallback((task: Omit<Task, 'id' | 'createdAt'>) => {
+  const addTask = useCallback((task: Omit<Task, 'id' | 'createdAt'>): { success: boolean; task?: Task } => {
+    // 检查任务数量限制
+    if (tasks.length >= MAX_TASKS) {
+      return { success: false };
+    }
+    
     const newTask: Task = {
       ...task,
       id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date().toISOString(),
     };
     setTasks(prev => [...prev, newTask]);
-    return newTask;
-  }, []);
+    return { success: true, task: newTask };
+  }, [tasks.length]);
 
   const updateTask = useCallback((id: string, updates: Partial<Task>) => {
     setTasks(prev => 
@@ -104,27 +110,40 @@ export function useLocalStorage() {
   }, [tasks]);
 
   // 撤销完成任务（恢复到任务列表）
-  const restoreTask = useCallback((id: string) => {
+  const restoreTask = useCallback((id: string): { success: boolean; task?: Task } => {
+    // 检查任务数量限制
+    if (tasks.length >= MAX_TASKS) {
+      return { success: false };
+    }
+    
     const taskToRestore = completedTasks.find(t => t.id === id);
     if (taskToRestore) {
       const { completedAt, ...restoredTask } = taskToRestore;
       setTasks(prev => [...prev, restoredTask]);
       setCompletedTasks(prev => prev.filter(task => task.id !== id));
-      return restoredTask;
+      return { success: true, task: restoredTask };
     }
-    return null;
-  }, [completedTasks]);
+    return { success: false };
+  }, [completedTasks, tasks.length]);
 
   // 批量添加任务（用于导入功能）
-  const addTasks = useCallback((newTasks: Omit<Task, 'id' | 'createdAt'>[]) => {
+  const addTasks = useCallback((newTasks: Omit<Task, 'id' | 'createdAt'>[]): { success: boolean; added: number; exceeded: boolean } => {
+    const currentCount = tasks.length;
+    const remainingSlots = MAX_TASKS - currentCount;
+    
+    // 如果导入后会超过限制
+    if (currentCount + newTasks.length > MAX_TASKS) {
+      return { success: false, added: 0, exceeded: true };
+    }
+    
     const tasksWithIds = newTasks.map(task => ({
       ...task,
       id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date().toISOString(),
     }));
     setTasks(prev => [...prev, ...tasksWithIds]);
-    return tasksWithIds;
-  }, []);
+    return { success: true, added: tasksWithIds.length, exceeded: false };
+  }, [tasks.length]);
 
   const updateTaskPosition = useCallback((id: string, x: number, y: number) => {
     setTasks(prev =>

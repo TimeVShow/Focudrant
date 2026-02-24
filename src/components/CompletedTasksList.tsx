@@ -1,15 +1,17 @@
-import { CompletedTask } from '../types';
+import { useState } from 'react';
+import { CompletedTask, Task } from '../types';
 import { useLocale } from '../hooks/useLocale';
 
 interface CompletedTasksListProps {
   tasks: CompletedTask[];
   isOpen: boolean;
   onClose: () => void;
-  onRestore: (id: string) => void;
+  onRestore: (id: string) => { success: boolean; task?: Task };
 }
 
 export default function CompletedTasksList({ tasks, isOpen, onClose, onRestore }: CompletedTasksListProps) {
   const { t } = useLocale();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -53,6 +55,14 @@ export default function CompletedTasksList({ tasks, isOpen, onClose, onRestore }
           <p className="text-sm text-muted-foreground mt-1">{t('done.subtitle')}</p>
         </div>
 
+        {/* 错误提示 */}
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2">
+            <span className="text-lg">⚠️</span>
+            <p className="text-sm text-red-600">{errorMessage}</p>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto">
           {tasks.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
@@ -85,7 +95,11 @@ export default function CompletedTasksList({ tasks, isOpen, onClose, onRestore }
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          onRestore(task.id);
+                          const result = onRestore(task.id);
+                          if (!result.success) {
+                            setErrorMessage(t('limit.restore'));
+                            setTimeout(() => setErrorMessage(null), 3000);
+                          }
                         }}
                         className="opacity-0 group-hover:opacity-100 px-2 py-1 text-xs bg-primary/10 text-primary rounded-lg
                                    hover:bg-primary/20 transition-all duration-150 whitespace-nowrap"

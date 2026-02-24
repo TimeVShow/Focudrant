@@ -7,7 +7,7 @@ import TaskDetailModal from './TaskDetailModal';
 
 interface QuadrantAxisProps {
   tasks: Task[];
-  onAddTask: (task: Omit<Task, 'id' | 'createdAt'>) => void;
+  onAddTask: (task: Omit<Task, 'id' | 'createdAt'>) => { success: boolean; task?: Task };
   onUpdatePosition: (id: string, x: number, y: number) => void;
   onDeleteTask: (id: string) => void;
   onCompleteTask: (id: string) => void;

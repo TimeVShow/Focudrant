@@ -5,13 +5,14 @@ import { useLocale } from '../hooks/useLocale';
 interface ImportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onImport: (tasks: Omit<Task, 'id' | 'createdAt'>[]) => void;
+  onImport: (tasks: Omit<Task, 'id' | 'createdAt'>[]) => { success: boolean; added: number; exceeded: boolean };
 }
 
 export default function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
   const { t } = useLocale();
   const [isDragging, setIsDragging] = useState(false);
   const [importStatus, setImportStatus] = useState<{ success: number; failed: number } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const parseRelativeTime = (text: string, now: Date): string => {
@@ -118,12 +119,19 @@ export default function ImportModal({ isOpen, onClose, onImport }: ImportModalPr
       }
       
       if (tasks.length > 0) {
-        onImport(tasks);
-        setImportStatus({ success: tasks.length, failed: failedCount });
-        setTimeout(() => {
-          setImportStatus(null);
-          onClose();
-        }, 2000);
+        const result = onImport(tasks);
+        
+        if (result.exceeded) {
+          // 超过限制，显示错误
+          setErrorMessage(t('limit.import'));
+          setTimeout(() => setErrorMessage(null), 3000);
+        } else if (result.success) {
+          setImportStatus({ success: result.added, failed: failedCount });
+          setTimeout(() => {
+            setImportStatus(null);
+            onClose();
+          }, 2000);
+        }
       } else {
         alert('No valid tasks found. Please check file format.');
       }
@@ -132,7 +140,7 @@ export default function ImportModal({ isOpen, onClose, onImport }: ImportModalPr
     
     // 读取完成后，reader 对象将被垃圾回收
     // 文件内容不会被保留或上传到任何服务器
-  }, [parseFileContent, onImport, onClose]);
+  }, [parseFileContent, onImport, onClose, t]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -211,6 +219,12 @@ export default function ImportModal({ isOpen, onClose, onImport }: ImportModalPr
               {t('imp.successCount', { n: importStatus.success })}
               {importStatus.failed > 0 && t('imp.failCount', { n: importStatus.failed })}
             </p>
+          </div>
+        ) : errorMessage ? (
+          <div className="text-center py-8">
+            <div className="text-5xl mb-4">⚠️</div>
+            <p className="text-lg font-medium text-foreground">{t('limit.title')}</p>
+            <p className="text-sm text-muted-foreground mt-2">{errorMessage}</p>
           </div>
         ) : (
           <>

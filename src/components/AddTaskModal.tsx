@@ -5,7 +5,7 @@ import { useLocale } from '../hooks/useLocale';
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (task: Omit<Task, 'id' | 'createdAt'>) => void;
+  onAdd: (task: Omit<Task, 'id' | 'createdAt'>) => { success: boolean; task?: Task };
 }
 
 // 中文数字映射
@@ -286,6 +286,7 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalPro
   const [isVisible, setIsVisible] = useState(false);
   const [smartText, setSmartText] = useState('');
   const [parsedResult, setParsedResult] = useState<{ title: string; deadline: string } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -294,6 +295,7 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalPro
       setIsVisible(false);
       setSmartText('');
       setParsedResult(null);
+      setErrorMessage(null);
     }
   }, [isOpen]);
 
@@ -308,7 +310,7 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalPro
 
   const handleSmartCreate = () => {
     if (parsedResult) {
-      onAdd({
+      const result = onAdd({
         title: parsedResult.title,
         deadline: parsedResult.deadline,
         importance: undefined,
@@ -316,6 +318,12 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalPro
         x: -50,
         y: 50,
       });
+      
+      if (!result.success) {
+        setErrorMessage(t('limit.add'));
+        setTimeout(() => setErrorMessage(null), 3000);
+        return;
+      }
       
       setSmartText('');
       setParsedResult(null);
@@ -330,7 +338,7 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalPro
     
     if (!title.trim() || !deadline) return;
 
-    onAdd({
+    const result = onAdd({
       title: title.trim(),
       deadline,
       importance: importance || undefined,
@@ -338,6 +346,12 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalPro
       x: -50,
       y: 50,
     });
+
+    if (!result.success) {
+      setErrorMessage(t('limit.add'));
+      setTimeout(() => setErrorMessage(null), 3000);
+      return;
+    }
 
     setTitle('');
     setDeadline('');
@@ -390,6 +404,14 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }: AddTaskModalPro
           <h2 className="text-lg sm:text-xl font-semibold text-foreground">{t('add.title')}</h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">{t('add.subtitle')}</p>
         </div>
+
+        {/* 错误提示 */}
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2">
+            <span className="text-lg">⚠️</span>
+            <p className="text-sm text-red-600">{errorMessage}</p>
+          </div>
+        )}
 
         {/* 智能识别输入 */}
         <div className="mb-4">
