@@ -710,6 +710,20 @@ if [ -f "src/components/ImportModal.tsx" ]; then
         warn "导入状态反馈可能缺失"
     fi
     
+    # 检查跳过无法识别的事件（只添加可识别的）
+    if grep -q "failedCount\|failed" src/components/ImportModal.tsx; then
+        pass "导入时跳过无法识别的事件并统计失败数"
+    else
+        fail "导入时未处理无法识别的事件"
+    fi
+    
+    # 检查导入超限错误提示
+    if grep -q "errorMessage\|exceeded" src/components/ImportModal.tsx; then
+        pass "导入超限错误提示已实现"
+    else
+        fail "导入超限错误提示缺失"
+    fi
+    
     # 检查国际化支持
     if grep -q "useLocale" src/components/ImportModal.tsx; then
         pass "导入弹窗支持国际化"
@@ -721,10 +735,92 @@ else
 fi
 
 # ============================================
-# 第15部分：已完成任务功能检查
+# 第15部分：任务数量限制检查（新增功能）
+# 测试目的：确保任务数量不超过100个上限
+# ============================================
+section "15" "检查任务数量限制功能..."
+
+if [ -f "src/hooks/useLocalStorage.ts" ]; then
+    # 检查 MAX_TASKS 常量
+    if grep -q "MAX_TASKS.*=.*100" src/hooks/useLocalStorage.ts; then
+        pass "任务数量上限常量已定义（MAX_TASKS = 100）"
+    else
+        fail "任务数量上限常量缺失或不是100"
+    fi
+    
+    # 检查 addTask 返回值包含成功状态
+    if grep -q "addTask.*success.*boolean\|{ success:" src/hooks/useLocalStorage.ts; then
+        pass "addTask 函数返回成功状态"
+    else
+        fail "addTask 函数未返回成功状态"
+    fi
+    
+    # 检查 addTask 中的限制检查
+    if grep -q "tasks.length.*>=.*MAX_TASKS\|tasks.length >= MAX_TASKS" src/hooks/useLocalStorage.ts; then
+        pass "addTask 函数包含数量限制检查"
+    else
+        fail "addTask 函数缺少数量限制检查"
+    fi
+    
+    # 检查 addTasks（批量添加）的限制检查
+    if grep -q "addTasks.*exceeded\|exceeded.*true" src/hooks/useLocalStorage.ts; then
+        pass "addTasks 函数包含超限标记"
+    else
+        fail "addTasks 函数缺少超限标记"
+    fi
+    
+    # 检查 restoreTask 的限制检查
+    if grep -q "restoreTask" src/hooks/useLocalStorage.ts; then
+        if grep -q "restoreTask.*success.*boolean" src/hooks/useLocalStorage.ts || grep -E "restoreTask.*\{.*success" src/hooks/useLocalStorage.ts; then
+            pass "restoreTask 函数返回成功状态（支持限制检查）"
+        else
+            warn "restoreTask 函数可能未返回成功状态"
+        fi
+    else
+        fail "restoreTask 函数缺失"
+    fi
+else
+    fail "src/hooks/useLocalStorage.ts 不存在"
+fi
+
+# 检查 AddTaskModal 中的限制错误提示
+if [ -f "src/components/AddTaskModal.tsx" ]; then
+    if grep -q "errorMessage\|limit.add" src/components/AddTaskModal.tsx; then
+        pass "添加任务超限错误提示已实现"
+    else
+        fail "添加任务超限错误提示缺失"
+    fi
+else
+    fail "src/components/AddTaskModal.tsx 不存在"
+fi
+
+# 检查 CompletedTasksList 中的恢复限制提示
+if [ -f "src/components/CompletedTasksList.tsx" ]; then
+    if grep -q "errorMessage\|limit.restore" src/components/CompletedTasksList.tsx; then
+        pass "恢复任务超限错误提示已实现"
+    else
+        fail "恢复任务超限错误提示缺失"
+    fi
+else
+    fail "src/components/CompletedTasksList.tsx 不存在"
+fi
+
+# 检查国际化翻译中的限制提示文本
+if [ -f "src/hooks/useLocale.tsx" ]; then
+    if grep -q "limit.add\|limit.import\|limit.restore" src/hooks/useLocale.tsx; then
+        pass "任务限制相关国际化文本已定义"
+    else
+        fail "任务限制相关国际化文本缺失"
+    fi
+else
+    fail "src/hooks/useLocale.tsx 不存在"
+fi
+
+# ============================================
+# 第16部分：已完成任务功能检查
 # 测试目的：确保已完成任务管理功能完整
 # ============================================
-section "15" "检查已完成任务功能..."
+section "16" "检查已完成任务功能..."
 
 # 检查 useLocalStorage 中的相关函数
 if [ -f "src/hooks/useLocalStorage.ts" ]; then
@@ -779,10 +875,10 @@ else
 fi
 
 # ============================================
-# 第16部分：任务详情功能检查
+# 第17部分：任务详情功能检查
 # 测试目的：确保任务详情编辑功能完整
 # ============================================
-section "16" "检查任务详情功能..."
+section "17" "检查任务详情功能..."
 
 if [ -f "src/components/TaskDetailModal.tsx" ]; then
     # 检查截止时间编辑
@@ -824,10 +920,10 @@ else
 fi
 
 # ============================================
-# 第17部分：祝贺动画功能检查
+# 第18部分：祝贺动画功能检查
 # 测试目的：确保任务完成祝贺动画正常
 # ============================================
-section "17" "检查祝贺动画功能..."
+section "18" "检查祝贺动画功能..."
 
 if [ -f "src/components/CongratulationsAnimation.tsx" ]; then
     # 检查动画触发
@@ -869,10 +965,10 @@ else
 fi
 
 # ============================================
-# 第18部分：坐标轴标签国际化检查
+# 第19部分：坐标轴标签国际化检查
 # 测试目的：确保坐标轴标签支持中英文
 # ============================================
-section "18" "检查坐标轴标签国际化..."
+section "19" "检查坐标轴标签国际化..."
 
 if grep -q "t('axis\|t(\"axis" src/components/QuadrantAxis.tsx; then
     pass "坐标轴标签使用国际化（↑重要、↓不重要、→紧急、←不紧急）"
@@ -953,6 +1049,9 @@ echo "  ✓ 直接创建任务（无需手动填写表单）"
 echo ""
 echo "【其他功能】"
 echo "  ✓ 批量导入（拖拽上传 + 格式说明）"
+echo "  ✓ 导入时跳过无法识别的事件（仅添加有效事件）"
+echo "  ✓ 任务数量限制（最多100个）"
+echo "  ✓ 超限时显示友好错误提示"
 echo "  ✓ 已完成任务列表（7天保留）"
 echo "  ✓ 撤销完成功能"
 echo "  ✓ 任务备注（支持超链接）"
