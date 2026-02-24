@@ -113,6 +113,17 @@ const translations: Record<Locale, Record<string, string>> = {
     'limit.import': '导入后将超过100个事件，请先删除部分后重试',
     'limit.restore': '事件数量已达上限，无法恢复',
 
+    // 聚焦模式
+    'focus.title': '专注模式',
+    'focus.remaining': '距离截止还剩',
+    'focus.overdue': '已超时',
+    'focus.deadline': '截止时间',
+    'focus.exit': '点击任意位置或按任意键退出',
+    'focus.days': '天',
+    'focus.hours': '小时',
+    'focus.minutes': '分钟',
+    'focus.seconds': '秒',
+
     // 引导
     'guide.welcome': '欢迎使用四象限待办',
     'guide.s1.title': '菜单功能',
@@ -224,6 +235,17 @@ const translations: Record<Locale, Record<string, string>> = {
     'limit.add': 'Too many tasks. Please delete some first.',
     'limit.import': 'Import would exceed 100 tasks. Please delete some first.',
     'limit.restore': 'Task limit reached. Cannot restore.',
+
+    // Focus mode
+    'focus.title': 'Focus Mode',
+    'focus.remaining': 'Time Remaining',
+    'focus.overdue': 'Overdue',
+    'focus.deadline': 'Deadline',
+    'focus.exit': 'Click anywhere or press any key to exit',
+    'focus.days': 'Days',
+    'focus.hours': 'Hours',
+    'focus.minutes': 'Min',
+    'focus.seconds': 'Sec',
 
     'guide.welcome': 'Welcome to Quadrant Todo',
     'guide.s1.title': 'Menu Features',

@@ -3,15 +3,17 @@ import QuadrantAxis from './components/QuadrantAxis';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { FontProvider, useFont, FontStyle } from './hooks/useFont';
 import { LocaleProvider, useLocale } from './hooks/useLocale';
+import { useIdleTimer } from './hooks/useIdleTimer';
 import CongratulationsAnimation from './components/CongratulationsAnimation';
 import CompletedTasksList from './components/CompletedTasksList';
 import ImportModal from './components/ImportModal';
 import OnboardingGuide from './components/OnboardingGuide';
-import { CompletedTask } from './types';
+import FocusMode from './components/FocusMode';
+import { CompletedTask, Task } from './types';
 
 interface DropdownMenuProps {
   completedTasks: CompletedTask[];
-  onRestore: (id: string) => void;
+  onRestore: (id: string) => { success: boolean; task?: Task };
   onOpenImport: () => void;
   onClearExpired: () => void;
 }
@@ -170,6 +172,7 @@ function AppContent() {
   const { t } = useLocale();
   const [showCongratulations, setShowCongratulations] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const { isIdle, exitIdleMode } = useIdleTimer();
 
   const handleCompleteTask = (id: string) => {
     completeTask(id);
@@ -223,6 +226,13 @@ function AppContent() {
 
       {/* 新手引导 */}
       <OnboardingGuide />
+
+      {/* 闲置聚焦模式 */}
+      <FocusMode
+        isActive={isIdle}
+        tasks={tasks}
+        onExit={exitIdleMode}
+      />
     </div>
   );
 }
