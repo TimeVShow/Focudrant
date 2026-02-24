@@ -67,6 +67,7 @@ CORE_FILES=(
     "src/components/ImportModal.tsx"
     "src/components/CongratulationsAnimation.tsx"
     "src/components/OnboardingGuide.tsx"
+    "src/components/FocusMode.tsx"
 )
 
 ALL_CORE_EXIST=true
@@ -94,6 +95,7 @@ HOOK_FILES=(
     "src/hooks/useLocalStorage.ts"
     "src/hooks/useFont.tsx"
     "src/hooks/useLocale.tsx"
+    "src/hooks/useIdleTimer.ts"
 )
 
 for file in "${HOOK_FILES[@]}"; do
@@ -987,6 +989,146 @@ else
 fi
 
 # ============================================
+# 第20部分：聚焦模式功能检查（新增功能）
+# 测试目的：确保闲置聚焦模式功能完整
+# ============================================
+section "20" "检查聚焦模式功能（FocusMode）..."
+
+# 检查 useIdleTimer hook
+if [ -f "src/hooks/useIdleTimer.ts" ]; then
+    pass "src/hooks/useIdleTimer.ts 存在"
+    
+    # 检查闲置超时常量
+    if grep -q "IDLE_TIMEOUT" src/hooks/useIdleTimer.ts; then
+        pass "闲置超时常量（IDLE_TIMEOUT）已定义"
+    else
+        fail "闲置超时常量缺失"
+    fi
+    
+    # 检查超时时间（2分钟）
+    if grep -q "2 \* 60 \* 1000\|120000" src/hooks/useIdleTimer.ts; then
+        pass "闲置超时时间设置为2分钟"
+    else
+        warn "闲置超时时间可能不是2分钟"
+    fi
+    
+    # 检查 isIdle 状态
+    if grep -q "isIdle\|setIsIdle" src/hooks/useIdleTimer.ts; then
+        pass "闲置状态（isIdle）已实现"
+    else
+        fail "闲置状态缺失"
+    fi
+    
+    # 检查退出闲置模式函数
+    if grep -q "exitIdleMode" src/hooks/useIdleTimer.ts; then
+        pass "退出闲置模式函数（exitIdleMode）已实现"
+    else
+        fail "退出闲置模式函数缺失"
+    fi
+    
+    # 检查用户活动事件监听
+    if grep -q "mousemove\|mousedown\|keydown\|touchstart" src/hooks/useIdleTimer.ts; then
+        pass "用户活动事件监听已实现"
+    else
+        fail "用户活动事件监听缺失"
+    fi
+    
+    # 检查定时器重置逻辑
+    if grep -q "resetTimer\|clearTimeout" src/hooks/useIdleTimer.ts; then
+        pass "定时器重置逻辑已实现"
+    else
+        fail "定时器重置逻辑缺失"
+    fi
+else
+    fail "src/hooks/useIdleTimer.ts 不存在"
+fi
+
+# 检查 FocusMode 组件
+if [ -f "src/components/FocusMode.tsx" ]; then
+    pass "src/components/FocusMode.tsx 存在"
+    
+    # 检查最紧急任务获取逻辑
+    if grep -q "getMostUrgentTask" src/components/FocusMode.tsx; then
+        pass "最紧急任务获取函数（getMostUrgentTask）已实现"
+    else
+        fail "最紧急任务获取函数缺失"
+    fi
+    
+    # 检查按截止时间排序
+    if grep -q "deadline.*sort\|sort.*deadline" src/components/FocusMode.tsx; then
+        pass "任务按截止时间排序已实现"
+    else
+        if grep -q "timeA.*timeB\|getTime" src/components/FocusMode.tsx; then
+            pass "任务按截止时间排序已实现（通过时间比较）"
+        else
+            warn "任务排序逻辑可能不完整"
+        fi
+    fi
+    
+    # 检查按重要程度排序（截止时间相同时）
+    if grep -q "importance.*Order\|importanceOrder" src/components/FocusMode.tsx; then
+        pass "截止时间相同时按重要程度排序已实现"
+    else
+        warn "重要程度排序可能缺失"
+    fi
+    
+    # 检查倒计时显示
+    if grep -q "timeRemaining\|countdown" src/components/FocusMode.tsx; then
+        pass "截止时间倒计时显示已实现"
+    else
+        fail "倒计时显示缺失"
+    fi
+    
+    # 检查秒级更新
+    if grep -q "seconds\|setInterval.*1000" src/components/FocusMode.tsx; then
+        pass "倒计时秒级更新已实现"
+    else
+        warn "倒计时可能不是秒级更新"
+    fi
+    
+    # 检查半透明背景
+    if grep -q "rgba.*0\.7\|rgba.*0\.8\|backdrop-filter\|blur" src/components/FocusMode.tsx; then
+        pass "半透明背景效果已实现"
+    else
+        warn "半透明背景效果可能缺失"
+    fi
+    
+    # 检查点击退出功能
+    if grep -q "onClick.*onExit\|onExit" src/components/FocusMode.tsx; then
+        pass "点击任意位置退出功能已实现"
+    else
+        fail "点击退出功能缺失"
+    fi
+    
+    # 检查国际化支持
+    if grep -q "useLocale" src/components/FocusMode.tsx; then
+        pass "聚焦模式支持国际化"
+    else
+        warn "聚焦模式可能不支持国际化"
+    fi
+else
+    fail "src/components/FocusMode.tsx 不存在"
+fi
+
+# 检查 App.tsx 中的集成
+if grep -q "FocusMode" src/App.tsx && grep -q "useIdleTimer\|isIdle" src/App.tsx; then
+    pass "FocusMode 已在 App.tsx 中集成"
+else
+    fail "FocusMode 未在 App.tsx 中正确集成"
+fi
+
+# 检查国际化翻译中的聚焦模式文本
+if [ -f "src/hooks/useLocale.tsx" ]; then
+    if grep -q "focus.title\|focus.remaining\|focus.exit" src/hooks/useLocale.tsx; then
+        pass "聚焦模式相关国际化文本已定义"
+    else
+        fail "聚焦模式相关国际化文本缺失"
+    fi
+else
+    fail "src/hooks/useLocale.tsx 不存在"
+fi
+
+# ============================================
 # 测试结果汇总
 # ============================================
 echo ""
@@ -1059,6 +1201,14 @@ echo "  ✓ 任务详情编辑"
 echo "  ✓ 清除过期任务"
 echo "  ✓ 字体切换（行草/Script/默认）"
 echo "  ✓ 祝贺动画（彩色粒子效果）"
+echo ""
+echo "【聚焦模式】（新增）"
+echo "  ✓ 闲置2分钟后自动触发"
+echo "  ✓ 显示最紧急任务（按截止时间+重要程度排序）"
+echo "  ✓ 实时倒计时（秒级更新）"
+echo "  ✓ 半透明背景（78%不透明度）"
+echo "  ✓ 点击任意位置或按键退出"
+echo "  ✓ 支持国际化"
 echo ""
 echo "============================================="
 
