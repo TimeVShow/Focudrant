@@ -325,12 +325,14 @@ export default function QuadrantAxis({
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, 'important')}
         >
-          <div className={`p-2 sm:p-3 ${quadrantConfig.important.colorClass}/70 text-xs sm:text-sm font-medium shrink-0 flex items-center gap-2`}>
-            <span className={`${quadrantConfig.important.labelBg} px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg`}>
-              {quadrantConfig.important.label}
-            </span>
-            {menuSlot}
-            <p className="mt-0 text-[10px] sm:text-xs opacity-70 hidden sm:block ml-auto">{quadrantConfig.important.sublabel}</p>
+          <div className={`p-2 sm:p-3 ${quadrantConfig.important.colorClass}/70 text-xs sm:text-sm font-medium shrink-0`}>
+            <div className="flex items-center gap-2">
+              <span className={`${quadrantConfig.important.labelBg} px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg`}>
+                {quadrantConfig.important.label}
+              </span>
+              {menuSlot}
+            </div>
+            <p className="mt-1 text-[10px] sm:text-xs opacity-70 hidden sm:block">{quadrantConfig.important.sublabel}</p>
           </div>
           <div className="flex-1 overflow-hidden">
             {renderQuadrantTasks('important')}
