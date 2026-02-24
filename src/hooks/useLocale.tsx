@@ -99,6 +99,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'imp.fImpD': '可选，支持 高/中/低 或 high/medium/low',
     'imp.fNotes': '备注',
     'imp.fNotesD': '可选',
+    'imp.privacy': '文件仅在本地解析，解析后立即删除，不会上传至任何服务器',
 
     // 加载
     'loading': '加载中...',
@@ -207,6 +208,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'imp.fImpD': 'Optional, high/medium/low',
     'imp.fNotes': 'Notes',
     'imp.fNotesD': 'Optional',
+    'imp.privacy': 'Files are parsed locally and deleted immediately. Nothing is uploaded.',
 
     'loading': 'Loading...',
     'congrats': 'Task completed! Keep going!',
